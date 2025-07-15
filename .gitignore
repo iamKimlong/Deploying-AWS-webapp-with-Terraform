@@ -1,0 +1,3 @@
+.vscode
+Terraform/.terraform/
+Terraform/.terraform.lock.hcl
