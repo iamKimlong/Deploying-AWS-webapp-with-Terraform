@@ -52,23 +52,33 @@ The application is a simple portfolio/blog site hosted on AWS with the following
 ## Project Structure
 
 ```
-cloud-computing-project/
+Deploying-AWS-webapp-with-Terraform/
 ├── main.tf              # Main Terraform configuration
 ├── user_data.sh         # EC2 instance bootstrap script
 ├── README.md            # Project documentation
-├── static/              # Static assets for S3
-│   ├── style.css
-│   ├── script.js
-│   └── architecture.png
-└── .gitignore          # Git ignore file
+├── static               # Static assets
+│   ├── style.css
+│   └── script.js
+├── .gitignore           # Git ignore file
+├── terraform
+│   ├── compute.tf
+│   ├── monitoring.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   ├── security.tf
+│   ├── storage.tf
+│   ├── terraform.tfstate
+│   ├── variables.tf
+│   └── vpc.tf
+└── user_data.sh
 ```
 
 ## Deployment Instructions
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/cloud-computing-project.git
-cd cloud-computing-project
+git clone https://github.com/iamKimlong/Deploying-AWS-webapp-with-Terraform.git
+cd Deploying-AWS-webapp-with-Terraform.git
 ```
 
 ### 2. Initialize Terraform

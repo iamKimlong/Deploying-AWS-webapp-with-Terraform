@@ -93,18 +93,18 @@ resource "aws_s3_bucket_cors_configuration" "static_assets" {
 resource "aws_s3_object" "style_css" {
   bucket       = aws_s3_bucket.static_assets.id
   key          = "style.css"
-  source       = "${path.module}/../style.css"
+  source       = "${path.module}/../static/style.css"
   content_type = "text/css"
-  etag         = filemd5("${path.module}/../style.css")
+  etag         = filemd5("${path.module}/../static/style.css")
 }
 
 # Upload JavaScript file
 resource "aws_s3_object" "script_js" {
   bucket       = aws_s3_bucket.static_assets.id
   key          = "script.js"
-  source       = "${path.module}/../script.js"
+  source       = "${path.module}/../static/script.js"
   content_type = "application/javascript"
-  etag         = filemd5("${path.module}/../script.js")
+  etag         = filemd5("${path.module}/../static/script.js")
 }
 
 # Upload architecture diagram placeholder

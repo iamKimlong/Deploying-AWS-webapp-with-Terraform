@@ -1,5 +1,3 @@
-// script.js - Static JavaScript for S3
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Cloud Computing Project - Web Application Loaded');
     
