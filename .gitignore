@@ -1,3 +1,46 @@
-.vscode
-Terraform/.terraform/
-Terraform/.terraform.lock.hcl
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.tfvars
+
+# AWS credentials
+.aws/
+*.pem
+*.ppk
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+.env
+.env.local
+
+# Build artifacts
+dist/
+build/
+
+node_modules/
+
+# Sensitive data
+secrets/
+credentials/

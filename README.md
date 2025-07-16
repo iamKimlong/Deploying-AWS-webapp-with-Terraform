@@ -1,73 +1,212 @@
-# Deploying AWS 3-Tier Webapp with Terraform, Docker, and GitHub Actions (CI/CD) Pipeline
+# AWS Cloud Computing Project
+
+This project demonstrates building and deploying a web application on AWS using Infrastructure as Code (IaC) principles with Terraform.
+
+## Project Overview
+
+The application is a simple portfolio/blog site hosted on AWS with the following architecture:
+- EC2 instances running the web application
+- Application Load Balancer for distributing traffic
+- Auto Scaling Group for high availability and resilience
+- S3 bucket for hosting static assets
+- CloudWatch for monitoring and logging
+- IAM roles for secure access control
+
+## Architecture Components
+
+### Compute Layer
+- **EC2 Instances**: Amazon Linux 2 instances running Apache web server
+- **Auto Scaling Group**: Maintains 2-4 instances based on CPU utilization
+- **Launch Template**: Defines instance configuration and user data script
+
+### Networking Layer
+- **VPC**: Custom VPC with CIDR 10.0.0.0/16
+- **Subnets**: 2 public subnets across different availability zones
+- **Internet Gateway**: Enables internet connectivity
+- **Security Groups**: Control traffic to ALB and EC2 instances
+
+### Load Balancing
+- **Application Load Balancer**: Distributes traffic across EC2 instances
+- **Target Group**: Health checks and routing configuration
+
+### Storage
+- **S3 Bucket**: Hosts static assets (CSS, JavaScript, images)
+- **Public Access**: Configured for serving web content
+
+### Monitoring & Logging
+- **CloudWatch Metrics**: CPU utilization monitoring
+- **CloudWatch Alarms**: Triggers auto-scaling actions
+- **CloudWatch Logs**: Application and system logs
+
+### Security
+- **IAM Role**: EC2 instances access S3 and CloudWatch
+- **Security Groups**: Restrict traffic to necessary ports only
+
+## Prerequisites
+
+1. AWS Account with appropriate permissions
+2. Terraform installed (v1.0 or higher)
+3. AWS CLI configured with credentials
+4. Git for version control
 
 ## Project Structure
-![Infrastructure](./assests/AWS-Three-Tier-Architecture.jpg)
 
-## Project Description
-- Dockerize a Flask app (Monty Hall Game) and push it to AWS Elastic Container Registry (ECR).
-- Deploy AWS Infrastructure using Terraform modules.
-- Provision EC2 Instances and pull latest Docker image and run it.
-- Finally: You will have a container running flask app on 2 EC2 Instances behind Application Load Balancer.
-
-
-## Technologies Used in Detail: 
-1. **Terraform (IaC)**: To deploy AWS Infrastructure resources using Terraform modules.
-2. **AWS Resources**:
-	- VPC (2 Public Subnets, 4 Private Subnets, Elastic IP, Nat Gateway, Internet Gateway).
-	- 3 EC2 Instances (two for hosting the app and bastion host to ssh), and Application Load Balancer.
-	- RDS, and Elasticache.
-	- S3 and Dynamodb: to store state file and lock it.
-	- Security Groups.
-3. **Docker**: To dockerize my Flask application using a Dockerfile.
-4. **GitHub Actions (CI/CD) Pipeline**: To do these Jobs on every git push command, also manually triggered:
-	- Automate the Infrastructure building and destroying process.
-	- Provision the EC2 Instances (Install and configure Docker).
-	- Build, push docker image to AWS ECR, then pull and run docker container in the ec2 instance.
-
-
-## How to Try This Project:
-- Clone This repo.
-- Push it to GitHub or Fork the repo in the first place.
-- Add GitHub Secrets from the settings of the repo.
-```yaml
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # YOUR AWS User KeyID.
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # YOUR AWS User Credentials.
-  EC2_PRIVATE_SSH_KEY: ${{ secrets.AWS_EC2_SSH_PRIVATE_KEY }} # Used to ssh into EC2.
-  EC2_PUBLIC_SSH_KEY: ${{ secrets.AWS_SSH_PUBLIC_KEY }} # Used to upload public key to aws.
 ```
-> To add **AWS Credentials** see the content of `~/.aws/config`
-> If you didn't see anything Install AWS CLI then do this command `aws configure` and provide your info here because you will use it in the future.
+cloud-computing-project/
+├── main.tf              # Main Terraform configuration
+├── user_data.sh         # EC2 instance bootstrap script
+├── README.md            # Project documentation
+├── static/              # Static assets for S3
+│   ├── style.css
+│   ├── script.js
+│   └── architecture.png
+└── .gitignore          # Git ignore file
+```
 
-> To add **public and private SSH Keys** use these commands
+## Deployment Instructions
+
+### 1. Clone the Repository
 ```bash
-ssh-keygen # name = ssh_key_aws ,then enter enter 
-chmod 400 ssh_key_aws
-cat ssh_key_aws # paste the content into GitHub Secrets EC2_PRIVATE_SSH_KEY
-cat ssh_key_aws.pub # paste the content into GitHub Secrets EC2_PUBLIC_SSH_KEY
+git clone https://github.com/yourusername/cloud-computing-project.git
+cd cloud-computing-project
 ```
-- Now you are ready to trigger the pipeline: Go to Actions tab and click on the name of the workflow `Build AWS Infrastructure and Deploy Dockerized Flask-App on it.` then click on run work flow.
-- To see the website go to your aws account and click on your loadbalancer and open its public DNS.
-- **IMPORTANT**: Destroy the resources after you finish because it will get pricy very fast.
-### How to Destroy AWS Resources:
-- Run the GitHub Actions Workflow again (manually) and choose destroy when prompted to run the workflow.
-- If that fails for any reason, go to your account and destroy every resource from there manually to not get a high bill.
 
+### 2. Initialize Terraform
+```bash
+terraform init
+```
 
+### 3. Review the Plan
+```bash
+terraform plan
+```
 
+### 4. Deploy Infrastructure
+```bash
+terraform apply
+```
+Type `yes` when prompted to confirm.
 
-## To-Do List
-- [ ] Provisoin EC2 Instances using Ansible.
-- [ ] Send email to me using lambda once the terraform state file change.
+### 5. Upload Static Assets to S3
+After deployment, upload the static files:
+```bash
+# Get the S3 bucket name from Terraform output
+export BUCKET_NAME=$(terraform output -raw s3_bucket_name)
 
-## Resources and Note
-1. [GitHub Action Tutorial by Nana.](https://www.youtube.com/watch?v=R8_veQiYBjI)
-2. [GitHub Actions Docs.](https://docs.github.com/en/actions)
-3. [AWS three-tier Architecture by Tech with Lucy.](https://www.youtube.com/watch?v=5RVT3BN9Iws)
-4. [Project Idea.](https://www.youtube.com/watch?v=xIyDhaIfC1I)
+# Upload static assets
+aws s3 cp static/style.css s3://$BUCKET_NAME/
+aws s3 cp static/script.js s3://$BUCKET_NAME/
+aws s3 cp static/architecture.png s3://$BUCKET_NAME/
+```
 
->**Note**: I've build this project from many resources and couldn't memorize every source I got info from.
-I hope you benefit from this project.
-If you like this project, I appreciate you starring this repo.<br>
-Finally, feel free to fork the content and contact me on my [LinkedIn account](https://www.linkedin.com/in/abdassalam-ahmad/) if you have any questions about this project.<br>
+### 6. Access the Application
+Get the ALB DNS name:
+```bash
+terraform output alb_dns_name
+```
+Open this URL in your browser to access the application.
 
+## Testing Auto Scaling
 
+### Simulate High Load
+1. SSH into one of the EC2 instances
+2. Generate CPU load:
+```bash
+stress --cpu 8 --timeout 300s
+```
+3. Watch new instances being created in the AWS Console
+
+### Simulate Instance Failure
+1. Terminate an instance manually in AWS Console
+2. Observe Auto Scaling Group launching a replacement
+3. Verify application remains accessible
+
+## Monitoring
+
+### CloudWatch Dashboard
+1. Navigate to CloudWatch in AWS Console
+2. View metrics for:
+   - EC2 CPU Utilization
+   - ALB Request Count
+   - Target Health
+
+### View Logs
+Check application logs in CloudWatch Logs:
+- Log Group: `/aws/ec2/cloud-computing-project`
+- Log Streams: Apache access and error logs
+
+## Cost Optimization
+
+### Estimated Monthly Costs (US East Region)
+- EC2 t2.micro (2 instances): ~$17
+- Application Load Balancer: ~$16
+- S3 Storage (1GB): ~$0.02
+- Data Transfer: ~$5
+- **Total**: ~$38/month
+
+### Cost Saving Tips
+1. Use t3.micro instead of t2.micro for better performance/cost
+2. Enable S3 lifecycle policies for old logs
+3. Use Reserved Instances for long-term deployments
+4. Set up billing alerts in AWS
+
+## Clean Up
+
+To avoid ongoing charges, destroy the infrastructure when done:
+```bash
+terraform destroy
+```
+Type `yes` to confirm deletion of all resources.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Instances not healthy in Target Group**
+   - Check Security Group rules
+   - Verify user data script execution
+   - Review Apache error logs
+
+2. **Cannot access application**
+   - Ensure ALB security group allows port 80
+   - Check instance health in Target Group
+   - Verify DNS propagation
+
+3. **Auto Scaling not working**
+   - Check CloudWatch alarms status
+   - Verify IAM role permissions
+   - Review Auto Scaling Group activity history
+
+## Security Best Practices
+
+1. **Principle of Least Privilege**: IAM roles have minimal required permissions
+2. **Network Security**: Security groups restrict unnecessary access
+3. **Encryption**: Enable S3 encryption for sensitive data
+4. **Updates**: Regularly update EC2 instances with security patches
+
+## Future Enhancements
+
+- [ ] Add HTTPS support with ACM certificate
+- [ ] Implement RDS database for dynamic content
+- [ ] Add CloudFront CDN for better performance
+- [ ] Implement CI/CD pipeline with CodePipeline
+- [ ] Add Route 53 for custom domain
+- [ ] Implement blue-green deployment strategy
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- AWS Documentation
+- Terraform AWS Provider Documentation
+- Cloud Computing Course Materials
