@@ -25,7 +25,6 @@ provider "aws" {
       {
         Region    = var.aws_region
         Terraform = "true"
-        CreatedAt = timestamp()
       }
     )
   }
